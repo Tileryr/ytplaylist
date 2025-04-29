@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+
 import './App.css'
 
 function App() {
   const [array, setArray] = useState<Array<string>>([])
 
   const fetchAPI = async () => {
-    const response = await axios.get("http://localhost:8080/api")
+    const response = await fetch("http://localhost:8080/api")
+
     const data : {
       fruits: Array<string>
-    } = response.data
+    } = await response.json() 
 
     setArray(data.fruits)
   } 
@@ -20,6 +21,19 @@ function App() {
 
   return (
     <div>
+      <button onClick={async () => {
+        const string = await fetch("http://localhost:8080/auth", {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text: "HI" })
+        })
+
+        const response = await string.text()
+        console.log(response)
+        
+      }}>Click</button>
       <label>
         FILE
         <input type='file'></input>
