@@ -11,8 +11,7 @@ ARG NODE_VERSION=22.11.0
 FROM node:${NODE_VERSION}-alpine
 
 # Use production node environment by default.
-ENV NODE_ENV production
-
+# ENV NODE_ENV production
 
 WORKDIR /usr/src/app
 
@@ -23,12 +22,17 @@ WORKDIR /usr/src/app
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
+    npm ci
+
+# REMOVED --omit=dev ADD BACK LATER
 
 RUN apk update && apk add ffmpeg
 
 # Run the application as a non-root user.
-USER node
+
+# ...took too long to find this...
+# node => root
+USER root
 
 # Copy the rest of the source files into the image.
 COPY . .
@@ -37,4 +41,4 @@ COPY . .
 EXPOSE 8080
 
 # Run the application.
-CMD npm start
+CMD npm run dev

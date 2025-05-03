@@ -12,9 +12,16 @@ services:
     build:
       context: .
     environment:
-      NODE_ENV: production
+      NODE_ENV:
     ports:
       - 8080:8080
+    develop:
+      watch:
+      - action: sync
+        path: ./src
+        target: /usr/src/app/src
+        ignore:
+        - ../node_modules
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
