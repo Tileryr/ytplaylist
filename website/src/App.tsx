@@ -1,50 +1,69 @@
-import { useEffect, useState } from 'react'
-
+import { ChangeEvent, useState } from 'react'
 import './App.css'
 
 function App() {
-  const [array, setArray] = useState<Array<string>>([])
 
-  const fetchAPI = async () => {
-    const response = await fetch("http://localhost:8080/api")
+  const [source, setSource] = useState("")
+  const [currentFile, setCurrentFile] = useState<File>()
 
-    const data : {
-      fruits: Array<string>
-    } = await response.json() 
+  const [videoSource, setVideoSource] = useState("")
 
-    setArray(data.fruits)
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return
+    setCurrentFile(event.target.files[0])
   } 
 
-  useEffect(() => {
-    fetchAPI()
-  }, [])
+  const handleSubmit = async () => {
+    if (!currentFile) {
+      console.log("NO FILE!")
+      return
+    }
+
+    const formData = new FormData
+    formData.append("uploaded_file", currentFile)
+
+    const string = await fetch("http://localhost:8080/convert", {
+      method: 'POST',
+      body: formData,
+    })
+
+    const response = await string.blob()
+    const url = URL.createObjectURL(response)
+    setSource(url)
+  }
+
+  const handleYoutube = async () => {
+    const video = await fetch("http://localhost:8080/download", {
+      method: "POST",
+      body: JSON.stringify({
+        url: "https://www.youtube.com/watch?v=6c28qWDMPBA"
+      }),
+      headers: {
+        'Content-Type': "application/json"
+      }
+    })
+
+    const videoBlob = await video.blob()
+    const url = URL.createObjectURL(videoBlob)
+    setVideoSource(url)
+  }
 
   return (
     <div>
-      <button onClick={async () => {
-        const string = await fetch("http://localhost:8080/auth", {
-          method: 'POST',
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ text: "HI" })
-        })
-
-        const response = await string.text()
-        console.log(response)
-        
-      }}>Click</button>
+      <button onClick={handleSubmit}>SUMBIT</button>
+      <button onClick={handleYoutube}>YOUTUBE</button>
       <label>
-        FILE
-        <input type='file'></input>
+        IMAGE
+        <input type='file' onChange={handleFileChange}></input>
       </label>
+
       {
-        array.map((fruit) => {
-          return <p>{fruit}</p>
-        })
+      source !== '' && <img alt='image' src={source}/>
       }
-      <img alt='image'>
-      </img>
+
+      {
+      videoSource !== '' && <video src={videoSource}/>
+      }
     </div>
   )
 }

@@ -27,7 +27,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 # REMOVED --omit=dev ADD BACK LATER
 
 RUN apk update && apk add ffmpeg
-
+RUN apk add yt-dlp
 # Run the application as a non-root user.
 
 # ...took too long to find this...
